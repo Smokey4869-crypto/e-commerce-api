@@ -1,13 +1,27 @@
+// product.service.ts
 import { Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../common/supabase.service';
+import { PlantRow } from '../../models/product';
+import { CustomError } from '../../errors/custom-errors';
+import { ErrorOr } from '../../errors/error-or';
+import { Errors } from '../../errors/predefined-errors';
 
 @Injectable()
 export class ProductService {
-    constructor(private supabaseService: SupabaseService) {}
+  constructor(private supabaseService: SupabaseService) {}
 
-    async fetchAllPlants() {
-        const { data, error } = await this.supabaseService.getClient()
-            .from('products')
-            .select();
+  async fetchAllPlants(): Promise<ErrorOr<PlantRow[]>> {
+    const { data, error } = await this.supabaseService
+      .getClient()
+      .from('product')
+      .select();
+
+    if (error) {
+      return {
+        error: Errors.FetchFailed(error.message)
+      };
     }
+
+    return { data };
+  }
 }
