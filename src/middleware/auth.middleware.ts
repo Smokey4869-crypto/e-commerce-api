@@ -4,8 +4,7 @@ import { jwtVerify } from 'jose';
 import { parse } from 'cookie';
 
 const ACCESS_SECRET_KEY = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET_KEY!);
-const REFRESH_SECRET_KEY = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET_KEY!);
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL = process.env.BASE_URL;
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -17,25 +16,27 @@ export class AuthMiddleware implements NestMiddleware {
       '/auth/generate_token',
     ];
 
-    const path = req.path;
+    const originalUrl = req.originalUrl;
 
-    console.log('Request path:', path);
+    console.log(`Original URL: ${originalUrl}`);
 
-    if (publicPaths.some(p => path.startsWith(p))) {
-      console.log('Public path, bypassing middleware:', path);
+    if (publicPaths.some(p => originalUrl.startsWith(p))) {
       return next();
     }
 
     const cookies = parse(req.headers.cookie || '');
-    const accessToken = cookies.access_cookie;
-    const refreshToken = cookies.refresh_cookie;
+    const accessToken = cookies.access_token;
+    const refreshToken = cookies.refresh_token;
 
-    console.log('Access Token:', accessToken);
-    console.log('Refresh Token:', refreshToken);
+    const redirectCount = parseInt(req.query.redirectCount as string) || 0;
+    if (redirectCount >= 3) {
+      console.log('Too many redirects');
+      return res.status(500).json({ error: 'Too many redirects' });
+    }
 
     if (!accessToken && !refreshToken) {
       console.log('No tokens found, redirecting to generate token');
-      return res.redirect(`${BASE_URL}/auth/generate_token`);
+      return res.redirect(`${BASE_URL}/auth/generate_token?redirectCount=${redirectCount + 1}`);
     }
 
     try {
@@ -55,17 +56,12 @@ export class AuthMiddleware implements NestMiddleware {
     } catch (accessError) {
       console.error('Access token expired or invalid:', accessError);
 
-      if (!refreshToken) {
+      if (refreshToken) {
+        console.log('Access token invalid, redirecting to refresh token');
+        return res.redirect(`${BASE_URL}/auth/refresh_token?redirectCount=${redirectCount + 1}`);
+      } else {
         console.log('No refresh token found, redirecting to generate token');
-        return res.redirect(`${BASE_URL}/auth/generate_token`);
-      }
-
-      try {
-        const { payload: refreshPayload } = await jwtVerify(refreshToken, REFRESH_SECRET_KEY);
-        return next();
-      } catch (refreshError) {
-        console.error('Refresh token invalid:', refreshError);
-        return res.redirect(`${BASE_URL}/auth/generate_token`);
+        return res.redirect(`${BASE_URL}/auth/generate_token?redirectCount=${redirectCount + 1}`);
       }
     }
   }
