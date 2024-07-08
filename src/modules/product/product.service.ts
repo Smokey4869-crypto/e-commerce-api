@@ -12,15 +12,31 @@ export class ProductService {
   async fetchAllPlants(): Promise<ErrorOr<PlantRow[]>> {
     const { data, error } = await this.supabaseService
       .getClient()
-      .from('product')
+      .from('products')
       .select();
 
     if (error) {
       return {
-        error: Errors.FetchFailed(error.message)
+        error: Errors.FetchFailed(error.message),
       };
     }
 
     return { data };
+  }
+
+  async fetchPlant(productId: number): Promise<ErrorOr<PlantRow>> {
+    const { data, error } = await this.supabaseService
+        .getClient()
+        .from('products')
+        .select()
+        .eq('productid', productId);
+
+    if (error) {
+        return {
+            error: Errors.FetchFailed(error.message)
+        };
+    }
+
+    return { data: data[0] as PlantRow };
   }
 }
