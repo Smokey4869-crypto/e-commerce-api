@@ -6,12 +6,14 @@ import { CartModule } from './modules/cart/cart.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthMiddleware } from './middleware/auth.middleware'; 
 import { ProductModule } from './modules/product/product.module';
+import { SelfPingModule } from './modules/self-ping/self-ping.module';
 
 @Module({
   imports: [
     ProductModule,
     AuthModule,
     CartModule,
+    SelfPingModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
