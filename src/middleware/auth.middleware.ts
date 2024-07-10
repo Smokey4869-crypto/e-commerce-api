@@ -13,14 +13,14 @@ export class AuthMiddleware implements NestMiddleware {
       '/auth/google',
       '/auth/google/callback',
       '/auth/refresh_token',
-      '/auth/generate_token',
+      '/auth/generate_token'
     ];
 
     const originalUrl = req.originalUrl;
 
     console.log(`Original URL: ${originalUrl}`);
 
-    if (publicPaths.some(p => originalUrl.startsWith(p))) {
+    if (publicPaths.some(p => originalUrl.startsWith(p)) || originalUrl === "/") {
       return next();
     }
 
