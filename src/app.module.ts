@@ -7,6 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthMiddleware } from './middleware/auth.middleware'; 
 import { ProductModule } from './modules/product/product.module';
 import { SelfPingModule } from './modules/self-ping/self-ping.module';
+import { CheckoutModule } from './modules/checkout/checkout.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { SelfPingModule } from './modules/self-ping/self-ping.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    CheckoutModule,
+    WebhookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
