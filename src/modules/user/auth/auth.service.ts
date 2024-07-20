@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { jwtVerify, SignJWT } from 'jose';
 import { v4 as uuidv4 } from 'uuid';
 import { parse, serialize } from 'cookie';
-import { SupabaseService } from '../../common/supabase.service';
+import { SupabaseService } from '../../../common/supabase.service';
 
 const ACCESS_SECRET_KEY = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET_KEY);
 const REFRESH_SECRET_KEY = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET_KEY);

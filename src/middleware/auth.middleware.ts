@@ -1,26 +1,38 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { jwtVerify } from 'jose';
 import { parse } from 'cookie';
 
 const ACCESS_SECRET_KEY = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET_KEY!);
-const BASE_URL = process.env.BASE_URL;
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
+  constructor(private configService: ConfigService) {}
+
   async use(req: Request, res: Response, next: NextFunction) {
+    const BASE_URL = this.configService.get<string>('BASE_URL'); // Use ConfigService to get BASE_URL
+
     const publicPaths = [
-      '/auth/google',
-      '/auth/google/callback',
-      '/auth/refresh_token',
-      '/auth/generate_token'
+      '/user/auth/google',
+      '/user/auth/google/callback',
+      '/user/auth/refresh_token',
+      '/user/auth/generate_token',
+      '/user/webhook/stripe'
     ];
 
     const originalUrl = req.originalUrl;
 
-    console.log(`Original URL: ${originalUrl}`);
+    // console.log(`Original URL: ${originalUrl}`);
+    // console.log(`BASE_URL: ${BASE_URL}`); // Debugging BASE_URL
 
-    if (publicPaths.some(p => originalUrl.startsWith(p)) || originalUrl === "/") {
+    if (!BASE_URL) {
+      console.error('BASE_URL is not defined');
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    // Skip token validation for public paths and static assets
+    if (publicPaths.some(p => originalUrl.startsWith(p)) || originalUrl === "/" || originalUrl.startsWith('/favicon.ico')) {
       return next();
     }
 
@@ -36,7 +48,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (!accessToken && !refreshToken) {
       console.log('No tokens found, redirecting to generate token');
-      return res.redirect(`${BASE_URL}/auth/generate_token?redirectCount=${redirectCount + 1}`);
+      return res.redirect(`${BASE_URL}/user/auth/generate_token?redirectCount=${redirectCount + 1}`);
     }
 
     try {
@@ -58,10 +70,10 @@ export class AuthMiddleware implements NestMiddleware {
 
       if (refreshToken) {
         console.log('Access token invalid, redirecting to refresh token');
-        return res.redirect(`${BASE_URL}/auth/refresh_token?redirectCount=${redirectCount + 1}`);
+        return res.redirect(`${BASE_URL}/user/auth/refresh_token?redirectCount=${redirectCount + 1}`);
       } else {
         console.log('No refresh token found, redirecting to generate token');
-        return res.redirect(`${BASE_URL}/auth/generate_token?redirectCount=${redirectCount + 1}`);
+        return res.redirect(`${BASE_URL}/user/auth/generate_token?redirectCount=${redirectCount + 1}`);
       }
     }
   }

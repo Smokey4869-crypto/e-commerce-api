@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
-import { SupabaseService } from '../../common/supabase.service'; // Adjust the path as necessary
-import { CheckoutItem, DeliveryOptions, UserMetadata, OrderMetadata, LineItem } from '../../models/checkout/index';
+import { SupabaseService } from '../../../common/supabase.service'; // Adjust the path as necessary
+import { CheckoutItem, DeliveryOptions, UserMetadata, OrderMetadata, LineItem } from '../../../models/checkout/index';
 
 @Injectable()
 export class CheckoutService {

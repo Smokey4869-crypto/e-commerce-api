@@ -1,9 +1,9 @@
 import { Controller, Post, Body, Req, Res, Headers, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CheckoutService } from './checkout.service';
-import { CheckoutItem, DeliveryOptions, UserMetadata, OrderMetadata } from '../../models/checkout/index';
+import { CheckoutItem, DeliveryOptions, UserMetadata, OrderMetadata } from '../../../models/checkout/index';
 
-@Controller('checkout')
+@Controller('user/checkout') // Updated base route to 'user/checkout'
 export class CheckoutController {
   constructor(private readonly checkoutService: CheckoutService) {}
 

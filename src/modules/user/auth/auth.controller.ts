@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Query, Body, Req, Res, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Response, Request } from 'express';
 import axios from 'axios';
-import { SupabaseService } from '../../common/supabase.service';
+import { SupabaseService } from '../../../common/supabase.service';
 import { AuthService } from './auth.service';
 
-@Controller('auth')
+@Controller('user/auth') // Updated base route to 'user/auth'
 export class AuthController {
   constructor(
     private readonly supabaseService: SupabaseService,
