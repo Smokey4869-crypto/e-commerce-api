@@ -9,10 +9,10 @@ import { OrderModule } from './order/order.module';
 @Module({
   imports: [
     AuthModule,
-    CartModule,
-    ProductModule,
-    CheckoutModule,
-    WebhookModule,
+    // CartModule,
+    // ProductModule,
+    // CheckoutModule,
+    // WebhookModule,
     // OrderModule,
   ],
 })
