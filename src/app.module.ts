@@ -8,7 +8,7 @@ import { UserModule } from './modules/user/user.module'; // Import the new UserM
 
 @Module({
   imports: [
-    UserModule, // Import UserModule instead of individual user modules
+    UserModule,
     SelfPingModule,
     ConfigModule.forRoot({
       isGlobal: true,

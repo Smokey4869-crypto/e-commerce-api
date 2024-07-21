@@ -8,12 +8,12 @@ import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
-    AuthModule,
-    // CartModule,
-    // ProductModule,
-    // CheckoutModule,
-    // WebhookModule,
-    // OrderModule,
+    // AuthModule,
+    CartModule,
+    ProductModule,
+    CheckoutModule,
+    WebhookModule,
+    OrderModule,
   ],
 })
 export class UserModule {}
