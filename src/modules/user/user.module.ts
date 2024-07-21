@@ -11,8 +11,8 @@ import { OrderModule } from './order/order.module';
     AuthModule,
     CartModule,
     ProductModule,
-    // CheckoutModule,
-    WebhookModule,
+    CheckoutModule,
+    // WebhookModule,
     OrderModule,
   ],
 })
