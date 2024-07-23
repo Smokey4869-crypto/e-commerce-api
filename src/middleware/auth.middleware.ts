@@ -1,14 +1,27 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NestMiddleware,
+} from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { jwtVerify } from 'jose';
 import { parse } from 'cookie';
 
-const ACCESS_SECRET_KEY = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET_KEY!);
-
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private configService: ConfigService) {}
+  private readonly accessSecretKey: Uint8Array;
+  constructor(private configService: ConfigService) {
+    const secretKey = this.configService.get<string>('JWT_ACCESS_SECRET_KEY');
+    if (!secretKey) {
+      throw new HttpException(
+        'JWT_ACCESS_SECRET_KEY is not defined',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    this.accessSecretKey = new TextEncoder().encode(secretKey);
+  }
 
   async use(req: Request, res: Response, next: NextFunction) {
     const BASE_URL = this.configService.get<string>('BASE_URL'); // Use ConfigService to get BASE_URL
@@ -18,7 +31,7 @@ export class AuthMiddleware implements NestMiddleware {
       '/user/auth/google/callback',
       '/user/auth/refresh_token',
       '/user/auth/generate_token',
-      '/user/webhook/stripe'
+      '/user/webhook/stripe',
     ];
 
     const originalUrl = req.originalUrl;
@@ -32,7 +45,11 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     // Skip token validation for public paths and static assets
-    if (publicPaths.some(p => originalUrl.startsWith(p)) || originalUrl === "/" || originalUrl.startsWith('/favicon.ico')) {
+    if (
+      publicPaths.some((p) => originalUrl.startsWith(p)) ||
+      originalUrl === '/' ||
+      originalUrl.startsWith('/favicon.ico')
+    ) {
       return next();
     }
 
@@ -48,11 +65,16 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (!accessToken && !refreshToken) {
       console.log('No tokens found, redirecting to generate token');
-      return res.redirect(`${BASE_URL}/user/auth/generate_token?redirectCount=${redirectCount + 1}`);
+      return res.redirect(
+        `${BASE_URL}/user/auth/generate_token?redirectCount=${redirectCount + 1}`,
+      );
     }
 
     try {
-      const { payload: accessPayload } = await jwtVerify(accessToken, ACCESS_SECRET_KEY);
+      const { payload: accessPayload } = await jwtVerify(
+        accessToken,
+        this.accessSecretKey,
+      );
       const { cartId, userId } = accessPayload as any;
 
       console.log('Access Token Valid:', accessPayload);
@@ -70,10 +92,14 @@ export class AuthMiddleware implements NestMiddleware {
 
       if (refreshToken) {
         console.log('Access token invalid, redirecting to refresh token');
-        return res.redirect(`${BASE_URL}/user/auth/refresh_token?redirectCount=${redirectCount + 1}`);
+        return res.redirect(
+          `${BASE_URL}/user/auth/refresh_token?redirectCount=${redirectCount + 1}`,
+        );
       } else {
         console.log('No refresh token found, redirecting to generate token');
-        return res.redirect(`${BASE_URL}/user/auth/generate_token?redirectCount=${redirectCount + 1}`);
+        return res.redirect(
+          `${BASE_URL}/user/auth/generate_token?redirectCount=${redirectCount + 1}`,
+        );
       }
     }
   }
