@@ -11,7 +11,7 @@ import {
 import { Request, Response } from 'express';
 import { CartService } from './cart.service';
 
-@Controller('user/cart') // Updated base route to 'user/cart'
+@Controller('user/cart') 
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 

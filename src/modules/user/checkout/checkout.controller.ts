@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { CheckoutService } from './checkout.service';
 import { CheckoutItem, DeliveryOptions, UserMetadata, OrderMetadata } from '../../../models/checkout/index';
 
-@Controller('user/checkout') // Updated base route to 'user/checkout'
+@Controller('user/checkout') 
 export class CheckoutController {
   constructor(private readonly checkoutService: CheckoutService) {}
 

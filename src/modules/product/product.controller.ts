@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PlantRow } from '../../../models/product';
-import { ErrorOr } from '../../../errors/error-or';
+import { PlantRow } from '../../models/product';
+import { ErrorOr } from '../../errors/error-or';
 
 @Controller('product')
 export class ProductController {

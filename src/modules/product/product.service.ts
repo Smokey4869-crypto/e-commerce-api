@@ -1,9 +1,9 @@
 // product.service.ts
 import { Injectable } from '@nestjs/common';
-import { SupabaseService } from '../../../common/supabase.service';
-import { PlantRow } from '../../../models/product';
-import { ErrorOr } from '../../../errors/error-or';
-import { Errors } from '../../../errors/predefined-errors';
+import { SupabaseService } from '../../common/supabase.service';
+import { PlantRow } from '../../models/product';
+import { ErrorOr } from '../../errors/error-or';
+import { Errors } from '../../errors/predefined-errors';
 
 @Injectable()
 export class ProductService {
