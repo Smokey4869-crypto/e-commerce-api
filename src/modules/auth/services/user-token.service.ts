@@ -17,15 +17,23 @@ export class UserTokenService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    this.accessSecretKey = this.configService.get<string>('JWT_ACCESS_SECRET_KEY');
-    this.refreshSecretKey = this.configService.get<string>('JWT_REFRESH_SECRET_KEY');
+    this.accessSecretKey = this.configService.get<string>(
+      'JWT_ACCESS_SECRET_KEY',
+    );
+    this.refreshSecretKey = this.configService.get<string>(
+      'JWT_REFRESH_SECRET_KEY',
+    );
   }
 
-  async generateToken(userId: string | undefined, res: Response): Promise<{ message: string; cartId: string }> {
+  async generateToken(
+    userId: string | undefined,
+    res: Response,
+  ): Promise<{ message: string; cartId: string }> {
     let cartId: string;
 
     if (userId) {
-      const { data: activeCart, error } = await this.supabaseService.getClient()
+      const { data: activeCart, error } = await this.supabaseService
+        .getClient()
         .from('cart')
         .select('id')
         .eq('user_id', userId)
@@ -39,9 +47,12 @@ export class UserTokenService {
       cartId = activeCart ? activeCart.id : uuidv4();
 
       if (!activeCart) {
-        const { error: insertError } = await this.supabaseService.getClient()
+        const { error: insertError } = await this.supabaseService
+          .getClient()
           .from('cart')
-          .insert([{ id: cartId, user_id: userId, is_active: true, status: 'active' }]);
+          .insert([
+            { id: cartId, user_id: userId, is_active: true, status: 'active' },
+          ]);
 
         if (insertError) {
           throw new Error('Unable to create a new cart');
@@ -51,8 +62,14 @@ export class UserTokenService {
       cartId = uuidv4();
     }
 
-    const accessToken = this.jwtService.sign({ cartId, userId }, { secret: this.accessSecretKey, expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign({ cartId, userId }, { secret: this.refreshSecretKey, expiresIn: '30d' });
+    const accessToken = this.jwtService.sign(
+      { cartId, userId },
+      { secret: this.accessSecretKey, expiresIn: '15m' },
+    );
+    const refreshToken = this.jwtService.sign(
+      { cartId, userId },
+      { secret: this.refreshSecretKey, expiresIn: '30d' },
+    );
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
@@ -82,9 +99,14 @@ export class UserTokenService {
     }
 
     try {
-      const { cartId, userId } = this.jwtService.verify(refreshToken, { secret: this.refreshSecretKey });
+      const { cartId, userId } = this.jwtService.verify(refreshToken, {
+        secret: this.refreshSecretKey,
+      });
 
-      const newAccessToken = this.jwtService.sign({ cartId, userId }, { secret: this.accessSecretKey, expiresIn: '15m' });
+      const newAccessToken = this.jwtService.sign(
+        { cartId, userId },
+        { secret: this.accessSecretKey, expiresIn: '15m' },
+      );
 
       res.cookie('access_token', newAccessToken, {
         httpOnly: true,

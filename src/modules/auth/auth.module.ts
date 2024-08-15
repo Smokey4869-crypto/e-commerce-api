@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CommonModule } from '../common/common.module';
 import { UserAuthService } from './services/user-auth.service';
-// import { AdminAuthService } from './services/admin-auth.service';
+import { AdminAuthService } from './services/admin-auth.service';
 import { UserTokenService } from './services/user-token.service';
-// import { AdminTokenService } from './services/admin-token.service';
 import { UserAuthController } from './controllers/user-auth.controller';
-// import { AdminAuthController } from './controllers/admin-auth.controller';
+import { AdminAuthController } from './controllers/admin-auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -24,19 +23,16 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
   ],
   providers: [
     UserAuthService,
-    // AdminAuthService,
+    AdminAuthService,
     UserTokenService,
-    // AdminTokenService,
   ],
   controllers: [
     UserAuthController,
-    // AdminAuthController
+    AdminAuthController
   ],
   exports: [
     UserAuthService,
-    // AdminAuthService,
-    UserTokenService,
-    // AdminTokenService,
+    AdminAuthService
   ],
 })
 export class AuthModule {}
