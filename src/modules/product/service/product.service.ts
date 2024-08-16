@@ -100,7 +100,7 @@ export class ProductService {
       .from('products')
       .update(updateProductDto)
       .eq('productid', id)
-      .single();
+      .select();
 
     if (error || !data) {
       return {
@@ -110,7 +110,7 @@ export class ProductService {
       };
     }
 
-    return data as ProductDto;
+    return data[0] as ProductDto;
   }
 
   async delete(id: number): Promise<ErrorOr<void>> {

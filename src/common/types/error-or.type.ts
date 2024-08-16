@@ -1,1 +1,1 @@
-export type ErrorOr<T> = T | { error: string; details?: string; statusCode: number };
+export type ErrorOr<T> = T | { error: string; details?: string; statusCode: number};

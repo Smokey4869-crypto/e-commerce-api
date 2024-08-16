@@ -23,10 +23,7 @@ export class AuthMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const publicPaths = [
-      '/user/auth/google',
-      '/user/auth/google/callback',
-      '/user/auth/refresh_token',
-      '/user/auth/generate_token',
+      '/user/auth',
       '/admin/auth',
       '/user/webhook/stripe',
     ];
