@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../../common/supabase.service';
-import { ProductEntity } from '../entities/product.entity';
+import { ProductDto } from '../dto/product.dto';
+import { ErrorOr } from '../../../common/types/error-or.type';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async findAll(): Promise<ProductEntity[]> {
+  async findAll(userRole: string): Promise<ProductDto[]> {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('products')
@@ -16,10 +17,10 @@ export class ProductService {
       throw new NotFoundException('No products found');
     }
 
-    return data as ProductEntity[];
+    return this.filterFields(data, userRole);
   }
 
-  async findOne(id: number): Promise<ProductEntity> {
+  async findOne(id: number, userRole: string): Promise<ProductDto> {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('products')
@@ -31,24 +32,69 @@ export class ProductService {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    return data as ProductEntity;
+    return this.filterFields([data], userRole)[0];
   }
 
-  async create(product: ProductEntity): Promise<ProductEntity> {
+  // Filter out sensitive fields for non-admin users
+  private filterFields(data: any[], userRole: string): ProductDto[] {
+    if (userRole === 'admin') {
+      return data as ProductDto[];
+    }
+
+    // Explicitly define the keys that should be included for normal users
+    const allowedKeys = [
+      'productid',
+      'name',
+      'link',
+      'description',
+      'product_include',
+      'harvest_cycle',
+      'flavour_characteristics',
+      'height',
+      'width',
+      'care_technique',
+      'harvesting_technique',
+      'image_urls',
+      'slug',
+      'price',
+      'price_id',
+      'category',
+    ];
+
+    return data.map((product) => {
+      const filteredProduct = {} as ProductDto;
+      allowedKeys.forEach((key) => {
+        if (product.hasOwnProperty(key)) {
+          filteredProduct[key] = product[key];
+        }
+      });
+
+      return filteredProduct;
+    });
+  }
+
+  async create(product: ProductDto): Promise<ErrorOr<ProductDto>> {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('products')
       .insert([product])
-      .single();
+      .select();
 
     if (error) {
-      throw new Error('Error creating product');
+      return {
+        error: 'Error creating product',
+        details: error.message,
+        statusCode: error.code === '23505' ? 409 : 500,
+      };
     }
 
-    return data as ProductEntity;
+    return data[0] as ProductDto;
   }
 
-  async update(id: number, updateProductDto: Partial<ProductEntity>): Promise<ProductEntity> {
+  async update(
+    id: number,
+    updateProductDto: Partial<ProductDto>,
+  ): Promise<ErrorOr<ProductDto>> {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('products')
@@ -57,13 +103,17 @@ export class ProductService {
       .single();
 
     if (error || !data) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      return {
+        error: `Product with ID ${id} not found`,
+        details: error?.message,
+        statusCode: 404,
+      };
     }
 
-    return data as ProductEntity;
+    return data as ProductDto;
   }
 
-  async remove(id: number): Promise<void> {
+  async delete(id: number): Promise<ErrorOr<void>> {
     const { error } = await this.supabaseService
       .getClient()
       .from('products')
@@ -71,7 +121,11 @@ export class ProductService {
       .eq('productid', id);
 
     if (error) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      return {
+        error: `Product with ID ${id} not found`,
+        details: error.message,
+        statusCode: 404,
+      };
     }
   }
 }

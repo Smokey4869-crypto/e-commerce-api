@@ -27,6 +27,7 @@ export class AuthMiddleware implements NestMiddleware {
       '/user/auth/google/callback',
       '/user/auth/refresh_token',
       '/user/auth/generate_token',
+      '/admin/auth',
       '/user/webhook/stripe',
     ];
 

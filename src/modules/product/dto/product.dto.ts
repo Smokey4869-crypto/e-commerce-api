@@ -1,4 +1,4 @@
-export type ProductEntity = {
+export type ProductDto = {
   productid: number;
   name: string;
   link: string;

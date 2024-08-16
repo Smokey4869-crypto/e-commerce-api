@@ -70,7 +70,6 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    console.log("guard", request);
     const user = request.user; // Accessing user information set by the middleware
 
     if (!user) {
