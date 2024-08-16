@@ -3,8 +3,8 @@ import { CommonModule } from '../common/common.module';
 import { UserAuthService } from './services/user-auth.service';
 import { AdminAuthService } from './services/admin-auth.service';
 import { UserTokenService } from './services/user-token.service';
-import { UserAuthController } from './controllers/user-auth.controller';
-import { AdminAuthController } from './controllers/admin-auth.controller';
+import { UserAuthController } from './controller/user-auth.controller';
+import { AdminAuthController } from './controller/admin-auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 

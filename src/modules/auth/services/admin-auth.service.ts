@@ -34,8 +34,11 @@ export class AdminAuthService {
 
     const user = profiles;
 
-    // Generate JWT token
-    const payload = { userId: user.id };
-    return this.jwtService.sign(payload, { secret: this.accessSecretKey, expiresIn: '1h' });
+    // Generate JWT token with the admin role
+    const payload = { userId: user.id, roles: ['admin'] };
+    return this.jwtService.sign(payload, {
+      secret: this.accessSecretKey,
+      expiresIn: '1h',
+    });
   }
 }
