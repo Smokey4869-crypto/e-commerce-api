@@ -30,8 +30,6 @@ export class AuthMiddleware implements NestMiddleware {
       '/user/webhook/stripe',
     ];
 
-    console.log('middleware');
-
     const originalUrl = req.originalUrl;
 
     // Skip token validation for public paths
@@ -39,13 +37,22 @@ export class AuthMiddleware implements NestMiddleware {
       return next();
     }
 
-    console.log(req.cookies);
-
     const cookies = parse(req.headers.cookie || '');
     const accessToken = cookies.access_token;
+    const refreshToken = cookies.refresh_token;
 
-    if (!accessToken) {
-      throw new UnauthorizedException('No access token found');
+    if (!accessToken && !refreshToken) {
+      if (originalUrl.startsWith('/admin')) {
+        return res.status(401).json({
+          message: 'Admin session expired, please log in again',
+          requiresLogin: true, // Indicates the client should redirect to login
+        });
+      } else {
+        throw new UnauthorizedException({
+          message: 'User token missing, please generate a new token',
+          requiresToken: true, // Indicates the client should handle token generation
+        });
+      }
     }
 
     try {
@@ -62,7 +69,26 @@ export class AuthMiddleware implements NestMiddleware {
 
       next();
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired access token');
+      console.error('Access token expired or invalid: ', error);
+
+      if (refreshToken && !originalUrl.startsWith('/admin')) {
+        throw new UnauthorizedException({
+          message: 'Access token expired, please refresh the token',
+          requiresRefresh: true, // Indicates the client should handle token refresh
+        });
+      } else {
+        if (originalUrl.startsWith('/admin')) {
+          return res.status(401).json({
+            message: 'Admin session expired, please log in again',
+            requiresLogin: true,
+          });
+        } else {
+          throw new UnauthorizedException({
+            message: 'No valid tokens found, please generate a new token',
+            requiresToken: true, // Indicates the client should handle token generation
+          });
+        }
+      }
     }
   }
 }
