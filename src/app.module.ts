@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProductModule } from './modules/product/product.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { JwtService } from '@nestjs/jwt';
+import { SelfPingModule } from './modules/self-ping/self-ping.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { JwtService } from '@nestjs/jwt';
     }),
     CommonModule,
     AuthModule,
-    ProductModule
+    ProductModule,
+    SelfPingModule
   ],
   controllers: [AppController],
   providers: [AppService, JwtService],
