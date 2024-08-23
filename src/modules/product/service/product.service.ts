@@ -13,7 +13,7 @@ export class ProductService {
       .from('products')
       .select('*');
 
-    if (error) {
+    if (error || !data || data.length === 0) {
       throw new NotFoundException('No products found');
     }
 
