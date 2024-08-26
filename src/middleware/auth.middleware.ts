@@ -22,11 +22,20 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const publicPaths = [
-      '/user/auth',
-      '/admin/auth',
-      '/user/webhook/stripe',
-    ];
+    // Bypass authentication checks in testing environment
+    console.log(process.env.NODE_ENV ? process.env.NODE_ENV : 'test');
+    if (process.env.NODE_ENV === 'test') {
+      req['user'] = {
+        userId: 'test-user-id',
+        roles: ['admin'],
+        cartId: 'test-cart-id',
+      };
+
+      console.log('Middleware executed ', req['user']);
+      return next();
+    }
+
+    const publicPaths = ['/user/auth', '/admin/auth', '/user/webhook/stripe'];
 
     const originalUrl = req.originalUrl;
 

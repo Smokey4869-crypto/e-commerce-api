@@ -23,7 +23,7 @@ export class ProductController {
 
   @Get()
   async findAll(@Req() req: any): Promise<ProductDto[]> {
-    const userRole = req.user.roles.includes('admin') ? 'admin' : 'user';
+    const userRole = req.user.roles?.includes('admin') ? 'admin' : 'user';
     return this.productService.findAll(userRole);
   }
 
