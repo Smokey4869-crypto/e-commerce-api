@@ -22,16 +22,17 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
-    // Bypass authentication checks in testing environment
-    console.log(process.env.NODE_ENV ? process.env.NODE_ENV : 'test');
-    if (process.env.NODE_ENV === 'test') {
+    // Check for the custom header in testing environment
+    if (process.env.NODE_ENV === 'test' && req.headers['x-test-roles']) {
+      const rolesHeader = Array.isArray(req.headers['x-test-roles'])
+        ? req.headers['x-test-roles'].join(',')
+        : req.headers['x-test-roles'];
+    
       req['user'] = {
         userId: 'test-user-id',
-        roles: ['admin'],
+        roles: rolesHeader.split(','),
         cartId: 'test-cart-id',
       };
-
-      console.log('Middleware executed ', req['user']);
       return next();
     }
 
@@ -40,7 +41,7 @@ export class AuthMiddleware implements NestMiddleware {
     const originalUrl = req.originalUrl;
 
     // Skip token validation for public paths
-    if (publicPaths.some((p) => originalUrl.startsWith(p))) {
+    if (publicPaths.some((p) => originalUrl.startsWith(p)) || originalUrl === "/") {
       return next();
     }
 

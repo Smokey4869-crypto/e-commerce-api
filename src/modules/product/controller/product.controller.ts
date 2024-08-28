@@ -42,7 +42,11 @@ export class ProductController {
     if (result && 'error' in result) {
       return res
         .status(result.statusCode)
-        .json({ error: result.error, details: result.details });
+        .json({
+          error: result.error,
+          details: result.details,
+          statusCode: result.statusCode,
+        });
     }
 
     return res.status(HttpStatus.CREATED).json(result);
@@ -59,9 +63,11 @@ export class ProductController {
     const result = await this.productService.update(id, updateProductDto);
 
     if ('error' in result) {
-      return res
-        .status(result.statusCode)
-        .json({ error: result.error, details: result.details });
+      return res.status(result.statusCode).json({
+        error: result.error,
+        details: result.details,
+        statusCode: result.statusCode,
+      });
     }
 
     return res.status(HttpStatus.OK).json(result);

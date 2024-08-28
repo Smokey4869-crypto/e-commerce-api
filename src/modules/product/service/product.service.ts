@@ -74,11 +74,14 @@ export class ProductService {
   }
 
   async create(product: ProductDto): Promise<ErrorOr<ProductDto>> {
-    const { data, error } = await this.supabaseService
+    const result = await this.supabaseService
       .getClient()
       .from('products')
       .insert([product])
       .select();
+
+    // Check if the result is defined and has the expected structure
+    const { data, error } = result || {};
 
     if (error) {
       return {
@@ -86,6 +89,10 @@ export class ProductService {
         details: error.message,
         statusCode: error.code === '23505' ? 409 : 500,
       };
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error('Unexpected error: No data returned on product creation');
     }
 
     return data[0] as ProductDto;
