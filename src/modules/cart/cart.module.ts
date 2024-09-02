@@ -9,4 +9,4 @@ import { UserCartService } from './user/user-cart.service';
   controllers: [UserCartController],
   providers: [UserCartService, SupabaseService],
 })
-export class AdminCartModule {}
+export class CartModule {}
