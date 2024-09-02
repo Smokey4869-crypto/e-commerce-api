@@ -8,6 +8,7 @@ import { ProductModule } from './modules/product/product.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { JwtService } from '@nestjs/jwt';
 import { SelfPingModule } from './modules/self-ping/self-ping.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SelfPingModule } from './modules/self-ping/self-ping.module';
     CommonModule,
     AuthModule,
     ProductModule,
+    CartModule,
     SelfPingModule
   ],
   controllers: [AppController],
