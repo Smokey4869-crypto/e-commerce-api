@@ -4,8 +4,8 @@ import axios from 'axios';
 @Injectable()
 export class SelfPingService {
   private readonly logger = new Logger(SelfPingService.name);
-  private readonly url = process.env.SELF_PING_URL || 'http://localhost:3000/'; // Update with your Render URL
-  private readonly interval = process.env.SELF_PING_INTERVAL || 30000; // Interval in milliseconds (30 seconds)
+  private readonly url = process.env.SELF_PING_URL || 'http://localhost:3000/'; 
+  private readonly interval = process.env.SELF_PING_INTERVAL || 30000; 
 
   constructor() {
     this.startPinging();
